@@ -15,3 +15,9 @@ app.get('/status', (req, res) => {
 app.listen(process.env.PORT || 3000, () => {
   console.log('Сервер запущен');
 });
+app.use(express.json()); // если ещё не добавлено
+
+app.post('/senler-webhook', (req, res) => {
+  console.log('Получено событие от Senler:', req.body);
+  res.sendStatus(200);
+});
