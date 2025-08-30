@@ -11,7 +11,6 @@ app.get('/status', (req, res) => {
   res.status(200).json({ message: 'ok' });
 });
 
-
 app.listen(process.env.PORT || 3000, () => {
   console.log('Сервер запущен');
 });
