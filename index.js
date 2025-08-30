@@ -4,14 +4,15 @@ const app = express();
 
 app.use(express.json());
 
-const METRIKA_ID = '65411641'; // ID счётчика Метрики
-const GOAL_NAME = 'message_sent'; // Название цели в Метрике
+const METRIKA_ID = '65411641'; // твой ID счётчика
+const METRIKA_URL = `https://mc.yandex.ru/watch/${METRIKA_ID}`;
 
+// Функция отправки цели
 function sendGoalToMetrika(goalName) {
-  axios.get(`https://mc.yandex.ru/watch/${METRIKA_ID}`, {
+  axios.get(METRIKA_URL, {
     params: {
       'site-info': `goal:${goalName}`,
-      'page-url': 'https://example.com', // если нет домена — оставь так
+      'page-url': 'https://senler-proxy.onrender.com', // твой домен
       'charset': 'utf-8',
       'ut': 'noindex',
       'browser-info': `ti:1:cl:1:rn:${Math.random()}`
@@ -23,21 +24,30 @@ function sendGoalToMetrika(goalName) {
   });
 }
 
+// Статус сервера
 app.get('/status', (req, res) => {
   res.status(200).json({ message: 'ok' });
 });
 
+// Обработка вебхука от Senler
 app.post('/senler-webhook', (req, res) => {
   console.log('Получено событие от Senler:', req.body);
 
-  if (req.body.type === 'message') {
-    sendGoalToMetrika(GOAL_NAME);
+  // Если пользователь написал сообщение
+  if (req.body.message && req.body.message.text) {
+    sendGoalToMetrika('message_sent');
+  }
+
+  // Если пользователь нажал кнопку
+  if (req.body.callback_query && req.body.callback_query.data) {
+    sendGoalToMetrika('button_clicked');
   }
 
   res.sendStatus(200);
 });
 
-const PORT = process.env.PORT || 3000;
+// Запуск сервера
+const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
